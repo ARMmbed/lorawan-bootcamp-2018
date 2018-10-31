@@ -66,6 +66,8 @@ public:
                 // print RX data as string and hexadecimal
                 std::string rx((const char*)info->RxBuffer, info->RxBufferSize);
                 printf("[INFO] Rx data: [ %s ]\r\n", mts::Text::bin2hexString(info->RxBuffer, info->RxBufferSize).c_str());
+                DigitalOut LED(PA_4);
+                LED = ((0xFF & (info->RxBuffer[0] & 1)) > 0);
             }
         }
     }

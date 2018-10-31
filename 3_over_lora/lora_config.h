@@ -8,6 +8,8 @@
 // Replace this with your AppEUI and AppKey
 static uint8_t appEUI[] = { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x00, 0xAA, 0xDF };
 static uint8_t appKey[] = { 0xC4, 0x18, 0xF2, 0x99, 0xCC, 0x33, 0x1B, 0xDA, 0x4E, 0x0A, 0xAA, 0x81, 0xB1, 0x7F, 0x29, 0xFE };
+static uint8_t multicast_nsk[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static uint8_t multicast_dsk[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 static std::string network_name = "MTS-DEMO";
 static std::string network_passphrase = "MTS-DEMO";
@@ -70,6 +72,13 @@ static void connect_to_lora(RadioEvent *events) {
                 logError("failed to set network join mode to OTA");
             }
         }
+
+        // Class C so multicast downlinks can be heard - Can be changed back to "A" for class A
+        dot->setClass("C");
+        
+        // create multicast session information.
+        dot->setMulticastSession(1, 1, multicast_nsk, multicast_dsk);
+
         // in OTA and AUTO_OTA join modes, the credentials can be passed to the library as a name and passphrase or an ID and KEY
         // only one method or the other should be used!
         // network ID = crc64(network name)
