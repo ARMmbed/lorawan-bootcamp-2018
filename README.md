@@ -1,44 +1,27 @@
 # LoRa Bootcamp 2018 - Open, Long-Range IoT
 
-Welcome to the bootcamp If you have any questions, please just give a shout. We are here to help.
+Welcome to the LoRa Bootcamp hosted in conjunction with Semtech, MultiTech and Microsoft in Minneapolis on Nov 1st 2018. If you have any questions, please just give a shout. We are here to help.
 
-In this session you'll be building five examples, introducing you to:
+The online reference for this document can be found at [bit.ly/lorabootcamp2018](bit.ly/lorabootcamp2018).
 
-1. Building IoT devices with [Arm Mbed OS](https://os.mbed.com/).
+In this session you'll be building 3 examples:
+
+1. Build a Blinky program with [Arm Mbed OS](https://os.mbed.com/).
 1. Hooking up an optical particle sensor to a development board.
 1. Connecting your device to Multitech Conduit AEP using LoRaWAN.
-1. Data visualization of particle sensors.
+
+In the following sessions Microsoft and Multitech will show you how to send data to the Microsoft cloud service and then back down to the device by using the LoRa Class C device profile. 
 
 In case you're stuck this document will help you get back on track. If you're a fast learner, there are 'extra credit'-assignments at the end of each section. Please help your neighbours as well :-)
 
 ## Prerequisites
 
-1. Create an Arm Mbed online account [here](https://os.mbed.com/account/signup/).
-1. Then install the following software for your operating system below.
-
-**Windows**
-
-If you are on Windows, install:
-
-1. [Arm Mbed Windows serial driver](http://os.mbed.com/media/downloads/drivers/mbedWinSerial_16466.exe) - serial driver for the board.
-
-    **Note:** Not needed on Windows 10.
-
-1. [Tera term](https://osdn.net/projects/ttssh2/downloads/66361/teraterm-4.92.exe/) - to see debug messages from the board.
-
-**Linux**
-
-If you're on Linux, install:
-TBD
-
-**MacOS**
-
-If you're on MacOS, install:
-TBD
+1. Create an **Arm Mbed online account** [os.mbed.com/signup](https://os.mbed.com/account/signup/).
+1. **Serial Terminal** - [Cool Term](https://freeware.the-meiers.org/). It works well on OSX / Windows. If you're on Linux you know what to do. baud rate is 115200, 8-n-1.
 
 ## Building the circuit
 
-We're using the [L-TEK FF1705](https://os.mbed.com/platforms/L-TEK-FF1705/) development board, which contains the Multi-Tech xDot module. In addition you'll have a battery holder, some batteries and an optical particle sensor. Let's connect these sensors and verify that the board works.
+We're using the [L-TEK FF1705](https://os.mbed.com/platforms/L-TEK-FF1705/) development board, which contains the Multi-Tech xDot module and an optical particle sensor. Let's connect thes sensor and verify that the board works.
 
 Grab the following items:
 
@@ -46,12 +29,10 @@ Grab the following items:
 * Micro-USB cable.
 * Optical particle sensor.
 * 3x jumper wires.
-* A box.
-* Battery pack + batteries.
 
-The particle sensor needs to be in the box, because it needs to have consistent lighting. Place the sensor in the box like this (use some velcro):
+The particle sensor needs to be placed upright and may need to be in a covered environment. In this workshop we can cover it with a piece of tape, so let us know if your readings are a little wonky. 
 
-![Dust sensor in a box](media/dust1.jpg)
+![Dust sensor ](http://github.com/armmbed/sxsw2018/raw/master/media/dust1.jpg)
 
 To connect the particle sensor you use the yellow, red and black wires. We'll use the jumper wires to connect the sensor to the board (because we don't have Grove base shields).
 
@@ -61,7 +42,7 @@ Plug the jumper wires into the Grove connector, and connect:
 * Black -> GND
 * Yellow -> GPIO3
 
-![Wires](media/dust2.jpg) ![Wires](media/dust3.jpg)
+![Wires](http://github.com/armmbed/sxsw2018/raw/master/media/dust2.jpg) ![Wires](http://github.com/armmbed/sxsw2018/raw/master/media/dust3.jpg)
 
 ## 1. A simple application
 
