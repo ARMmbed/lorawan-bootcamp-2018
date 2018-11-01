@@ -19,7 +19,7 @@ static lora::NetworkType network_type = lora::PUBLIC_LORAWAN;
 #define CHANNEL_PLAN CP_US915
 
 // Other configuration options
-static uint8_t frequency_sub_band = 0;  // frequency sub band
+static uint8_t frequency_sub_band = 1;  // frequency sub band
 static uint8_t ack = 0;                 // acknowledgements
 static bool adr = true;                // adaptive data rating
 static uint8_t join_delay = 5;
