@@ -32,7 +32,7 @@ Grab the following items:
 
 The particle sensor needs to be placed upright and may need to be in a covered environment. In this workshop we can cover it with a piece of tape, so let us know if your readings are a little wonky. 
 
-![Dust sensor ](http://github.com/armmbed/sxsw2018/raw/master/media/dust1.jpg)
+![Dust sensor ](https://www.github.com/armmbed/sxsw2018/raw/master/media/dust1.jpg)
 
 To connect the particle sensor you use the yellow, red and black wires. We'll use the jumper wires to connect the sensor to the board (because we don't have Grove base shields).
 
@@ -42,32 +42,34 @@ Plug the jumper wires into the Grove connector, and connect:
 * Black -> GND
 * Yellow -> GPIO3
 
-![Wires](http://github.com/armmbed/sxsw2018/raw/master/media/dust2.jpg) ![Wires](http://github.com/armmbed/sxsw2018/raw/master/media/dust3.jpg)
+![Wires](https://www.github.com/armmbed/sxsw2018/raw/master/media/dust2.jpg) 
+![Wires](https://www.github.com/armmbed/sxsw2018/raw/master/media/dust3.jpg)
 
-## 1. A simple application
 
-Now let's build a simple application which reads the sensor data and prints it to the serial console. Note that it takes three minutes to get the sensor to warm up!
+## 1. Blink the LED!
+
+Now let's build a simple application which blinks the LED and prints it to the serial console. 
 
 1. Go to [https://os.mbed.com](https://os.mbed.com) and sign up (or sign in).
-1. Go to the [L-TEK FF1705](https://os.mbed.com/platforms/L-TEK-FF1705/) platform page and click *Add to your Mbed compiler*.
+1. Go to the [L-TEK FF1705](https://os.mbed.com/platforms/L-TEK-FF1705/) platform page and click *Add to your Mbed compiler*. OR just click [Here](https://os.mbed.com/platforms/L-TEK-FF1705/add/)
 
-    ![Add to your Mbed compiler](media/mbed1.png)
+    ![Add to your Mbed compiler](https://www.github.com/armmbed/sxsw2018/raw/master/media/mbed1.png)
 
-1. Import the example program into the Arm Mbed Compiler by clicking [this link](https://os.mbed.com/compiler/#import:https://github.com/armmbed/sxsw2018).
+1. Import the example program into the Arm Mbed Compiler by clicking [this link](https://os.mbed.com/compiler/#import:https://github.com/armmbed/lorawan-bootcamp-2018).
 1. Click *Import*.
 
-    ![Importing the SXSW2018 repo](media/mbed6.png)
+    ![Importing the SXSW2018 repo](https://www.github.com/armmbed/sxsw2018/raw/master/media/mbed6.png)
 
 1. In the top right corner make sure you selected 'L-TEK FF1705'.
 
-    ![Select right platform](media/mbed3.png)
+    ![Select right platform](https://www.github.com/armmbed/sxsw2018/raw/master/media/mbed3.png)
 
 This has cloned the repository. There are a few examples here, so let's switch between them.
 
 1. Open `firmware/select_project.h`.
 1. Change the project to `1`.
 
-    ![Changing project](media/mbed10.png)
+    ![Changing project](https://www.github.com/armmbed/sxsw2018/raw/master/media/mbed10.png)
 
 1. To see the code, see `1_blinky/main.cpp`, it's pretty straight forward!
 1. Click *Compile*.
@@ -105,7 +107,7 @@ int main() {
 
 Change the code so that the LED responds to the button instead of through a timer.
 
-## 2. Showing logs
+## 1.5 Show Debug Printf logs
 
 If all is well, you should see something similar to:
 
@@ -124,40 +126,19 @@ To see debug messages, install:
 1. [Arm Mbed Windows serial driver](http://os.mbed.com/media/downloads/drivers/mbedWinSerial_16466.exe) - serial driver for the board.
     * See above for more instructions.
     * No need to install this if you're on Windows 10.
-1. [Tera term](https://osdn.net/projects/ttssh2/downloads/66361/teraterm-4.92.exe/) - to see debug messages from the board.
+1. **Serial Terminal** - [Cool Term](https://freeware.the-meiers.org/). 
 
-When you open Tera Term, select *Serial*, and then select the Mbed COM port.
-
-![Tera Term](media/mbed5.png)
+Make sure to change the baudrate under **Options**->**Baudrate** then press the **Connect** button at the top. 
 
 #### OS/X
 
-No need to install a driver. Open a terminal and run:
-
-```
-screen /dev/tty.usbm            # now press TAB to autocomplete and then ENTER
-```
-
-To exit, press: `CTRL+A` then `CTRL+\` then press `y`.
+No need to install a driver. Use [Cool Term](https://freeware.the-meiers.org/). Make sure to change the port under **Options**->**Port** and change the baudrate to 115200. Then press Connect. 
 
 #### Linux
 
-If it's not installed, install GNU screen (`sudo apt-get install screen`). Then open a terminal and find out the handler for your device:
+If you're on linux you should know what to do, either use screen or minicom. The boards usually show up under `/dev/tty...`, make sure to use a baudrate of 115200 at 8-n-1 . 
 
-```
-$ ls /dev/ttyACM*
-/dev/ttyACM0
-```
-
-Then connect to the board using screen:
-
-```
-sudo screen /dev/ttyACM0 9600                # might not need sudo if set up lsusb rules properly
-```
-
-To exit, press `CTRL+A` then type `:quit`.
-
-## 3. Getting data from the dust sensor
+## 2. Getting data from the dust sensor
 
 Now let's grab some data from the dust sensor. Make sure you've connected it properly to your device, and that it's in an upright position (I feel like I'm an airline steward) in the box.
 
@@ -201,7 +182,7 @@ int main() {
 
 Change the code so it runs the temperature and humidity measurements in a different thread.
 
-## 4. Connecting to Multitech Conduit AEP
+## 3. Connecting to Multitech Conduit AEP
 
 Now it's time to send this data to the internet over LoRaWAN.
 
