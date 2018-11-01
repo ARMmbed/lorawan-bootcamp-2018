@@ -188,92 +188,60 @@ Now it's time to send this data to the internet over LoRaWAN.
 
 1. Open `select_project.h` and change the project to 3.
 
-We need to program some keys in the device. LoRaWAN uses an end-to-end encryption scheme that uses two session keys. The network server holds one key, and the application server holds the other. (In this tutorial, TTN fulfils both roles). These session keys are created when the device joins the network. For the initial authentication with the network, the application needs its device EUI, the EUI of the application it wants to join (referred to as the application EUI) and a preshared key (the application key).
+Normally you would need an APP key and a session key, but in this instance for simplicities sake we are just going to hard code the keys into the example as 
+```C
+static std::string network_name = "MTS-DEMO";
+static std::string network_passphrase = "MTS-DEMO";
+static lora::NetworkType network_type = lora::PUBLIC_LORAWAN;
+```
 
+This is obviously bad practice, dont do this in real life. In real life for actual deployments you would use an app key and an EUI key and store them on secure storage so no one can hack you. Buuuuuuuuut, this is a workshop, so we're going with a simplification that just works. :-P
 
 ### Connecting to Multitech Conduit AEP
 
-Change AppKey
-Change NetworkKey
+Do nothing, just compile and load the program. it should 'just work'. You can verify your device is working by checking the terminal output and asking the workshop lead to check for your device ID on the gateway. 
 
-
-#### Pasting them in the Online Compiler
-
-In the Online Compiler now open `firmware/src/ttn_config.h`, and paste the Application EUI and Application Key in:
-
-![Put in the keys](media/mbed7.png)
-
-**Note:** Do not forget the `;` after pasting.
-
-Now click *Compile* and flash the application to your board again. The board should now connect to The Things Network. Inspect the *Data* tab in the TTN console to see the device connecting. You should first see a 'join request', then a 'join accept', and then data flowing in.
-
-![console-data](media/console-data.png)
-
-**Note:** Device not joining? Maybe your EUI is wrong, they're hard to read. On the serial console the EUI is printed. Check if it's the same as in the TTN console. Wrong? Click *Edit* in the TTN console and update the EUI.
 
 ### Extra credit - relaying data back to the device
 
-We only *send* messages to the network. But you can also relay data back to the device. Note that LoRaWAN devices can only receive messages when a RX window is open. This RX window opens right after a transmission, so you can only relay data back to the device right after sending.
+We only *send* messages to the network. But you can also relay data back to the device. To do this you have 2 options, if your device is class A then you can only send down to the device when its just sent something up. In this example we are using class C, so we can send data back down to the device whenever we want. The configuration changes to do that are as below:
 
-To send some data to the device:
+```C
+// Class C so multicast downlinks can be heard - Can be changed back to "A" for class A
+dot->setClass("C");
+        
+```
+**NOTE** the code in example 3 is already configured with the above, so dont change anything, just run compile and it'll work. 
 
-1. Open the device page in the TTN console.
-1. Under 'Downlink', enter some data under 'Payload' and click *Send*.
-1. Inspect the logs on the device to see the device receive the message - note that messages are not guaranteed to end up at the device. The 'Confirmed' flag can help if this is a necessity.
+### Extra Credit (2) - Multicast
+Now that we have the device setup in class C mode we need to enable multicast (one sender many receivers). The code below enables this (again, this has already been enabled in your project, so this is just for reference)
 
-Now let's do something useful... Control the LED on the board over LoRaWAN.
+```C
+// add multicast keys
+static uint8_t multicast_nsk[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static uint8_t multicast_dsk[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-Look at `RadioEvent.h` to the line where the messages are received. Now change the behavior so that the LED toggles on/off quickly after a message is received.
+// create multicast session information.
+dot->setMulticastSession(1, 1, multicast_nsk, multicast_dsk);
+```
 
-*Disabling LED sleep behavior*
+In the `RadioEvents.h` file we have added handling code to handle multicast events. Specifically in this project if the gateway sends a `0xFF` or `0x00` it will turn the LED on or off respectively. Nothing fancy, but it demonstrates the point. The code snippet that enables that behavior is below. 
 
-The LED still turns off when the device goes into sleep. This is a power-saving measurement. To disable sleep behavior for the LED:
+```C
+if (flags->Bits.Rx) {
 
-1. In `dot_util.cpp` change:
-
-    ```cpp
-        if (dot->getWakePin() != GPIO0 || dot->getWakeMode() == mDot::RTC_ALARM) {
-            GPIO_InitStruct.Pin = GPIO_PIN_4;
-            GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-            GPIO_InitStruct.Pull = GPIO_NOPULL;
-            HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            printf("[INFO] Received %d bytes\n", info->RxBufferSize);
+            if (info->RxBufferSize > 0) {
+                // print RX data as string and hexadecimal
+                std::string rx((const char*)info->RxBuffer, info->RxBufferSize);
+                printf("[INFO] Rx data: [ %s ]\r\n", mts::Text::bin2hexString(info->RxBuffer, info->RxBufferSize).c_str());
+                DigitalOut LED(PA_4);
+                LED = ((0xFF & (info->RxBuffer[0] & 1)) > 0);
+            }
         }
-    ```
+```
 
-    into:
-
-    ```cpp
-        if (dot->getWakePin() != GPIO0 || dot->getWakeMode() == mDot::RTC_ALARM) {
-            // GPIO_InitStruct.Pin = GPIO_PIN_4;
-            // GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-            // GPIO_InitStruct.Pull = GPIO_NOPULL;
-            // HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-        }
-    ```
-
-1. In `dot_util.cpp` change:
-
-    ```cpp
-    // PB_0, PB_1, PB_3 & PB_4 to analog nopull
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    ```
-
-    into:
-
-    ```cpp
-    // PB_0, PB_1, PB_3 & PB_4 to analog nopull
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_3; // | GPIO_PIN_4;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    ```
-
-1. Those changes will no longer shut down the LED when the device is asleep.
-
-### Extra credit (2) - Sending temperature and humidity data
+### Extra credit (3) - Sending temperature and humidity data
 
 Particle count is just one thing. Change the code so that it also sends temperature and humidity data off another sensor. More information can be found in the extra credit section in 3.
 
@@ -283,16 +251,3 @@ CayenneLPP format already knows about temperature and humidity, so you can do:
 payload.addTemperature(2, 23.21f); // on channel 2, send temperature 23.21 degrees celcius
 payload.addRelativeHumidity(3, 48.12f); // on channel 3, send 48.12 humidity
 ```
-
-**Extra credit (2) - Temperature / humidity data**
-
-Remember the temperature and humidity sensors from 3. and 4.? Add that information to the map as well. Look in `maps.js` to see how we do the graphing (it's pretty simple). Data is being sent over a websocket to the browser (see `server.js`). Handle the events and update the graph accordingly.
-
-
-
-Done already? Go do some extra credit work!
-
-**Add coverage**
-
-Setting up a gateway is easy. The recommended option is the highly configurable [MultiTech Conduit](https://www.digikey.com/en/product-highlight/m/multi-tech-systems/iot-platform); you need an `MTAC-LORA-915` or `MTAC-LORA-868` depending [on your country](https://www.thethingsnetwork.org/docs/lorawan/frequencies-by-country.html), as well as a `MTCDT` Conduit;
-
